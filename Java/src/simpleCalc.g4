@@ -3,35 +3,43 @@ grammar simpleCalc;
 simpleCalcLanguage  : (as+=assignments)* (wl+=while_loop)* (ie+=if_statements)* (e=expr)* EOF
                     ;
 
-while_loop          : WHILE PAR1 (c=conditions) PAR2 assignments #While
+
+while_loop          : WHILE PAR1 (c=conditions) PAR2 e1=assignlist #While
                     ;
 
 if_statements       : IF PAR1 (c=conditions) PAR2 as=assignments
-                    | IF PAR1 (c=conditions) PAR2 as=assignments (ELSEIF PAR1 (c=conditions) PAR2 as=assignments)* (ELSE as=assignments)
+                    | IF PAR1 (c=conditions) PAR2 as=assignments (ELSE as=assignments)
                     ;
 
-assignments         : x=ID '=' e=expr
+assignments         : x=ID '=' e=expr SEMICOLON
                     ;
 
-conditions          : e1=expr '<' e2=expr  # Bigger
-                    | e1=expr '<=' e2=expr # BiggerOrEqual
-                    | e1=expr '>' e2=expr  # Less
-                    | e1=expr '>=' e2=expr # LessOrEqual
-                    | e1=expr '==' e2=expr # Equals
-                    | e1=expr '!=' e2=expr # NotEqual
-                    | e1=expr '<=' e2=expr # BiggerOrEqual
-                    | '!' '(' c1=conditions ')'   # Not
-                    | e1=conditions '&&' e2=conditions # And
-                    | e1=conditions '||' e2=conditions # Or
+assign              : as1=assignments    #AsFirst
+                    | e1=expr            #ExpFirst
                     ;
 
-expr	            : c = FLOAT x=ID        #NMA
-                    | c=FLOAT     	     # Constant
-                    | x=ID		         # Variable
-                    | e1=expr opmulti=OPTWO e2=expr # Multiplication
-                    | e1=expr op=OPONE e2=expr # Addition
-                    | '(' e=expr ')'     # Parenthesis
-                    | op=OPONE f=FLOAT      # SignedConstant
+assignlist          : (asl+=assign)+
+                    ;
+
+conditions          : e1=expr '<' e2=expr                       # Bigger
+                    | e1=expr '<=' e2=expr                      # BiggerOrEqual
+                    | e1=expr '>' e2=expr                       # Less
+                    | e1=expr '>=' e2=expr                      # LessOrEqual
+                    | e1=expr '==' e2=expr                      # Equals
+                    | e1=expr '!=' e2=expr                      # NotEqual
+                    | e1=expr '<=' e2=expr                      # BiggerOrEqual
+                    | '!' '(' c1=conditions ')'                 # Not
+                    | e1=conditions '&&' e2=conditions          # And
+                    | e1=conditions '||' e2=conditions          # Or
+                    ;
+
+expr	            : c = FLOAT x=ID                    # NMA
+                    | c=FLOAT     	                    # Constant
+                    | x=ID		                        # Variable
+                    | e1=expr opmulti=OPTWO e2=expr     # Multiplication
+                    | e1=expr op=OPONE e2=expr          # Addition
+                    | '(' e=expr ')'                    # Parenthesis
+                    | op=OPONE f=FLOAT                  # SignedConstant
                     ;
 
 WHILE       : 'while'   ;

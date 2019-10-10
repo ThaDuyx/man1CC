@@ -86,6 +86,25 @@ class Interpreter extends AbstractParseTreeVisitor<Double> implements simpleCalc
     }
 
     @Override
+    public Double visitAsFirst(simpleCalcParser.AsFirstContext ctx) {
+        return visit(ctx.as1);
+    }
+
+    @Override
+    public Double visitExpFirst(simpleCalcParser.ExpFirstContext ctx) {
+        return visit(ctx.e1);
+    }
+
+
+    @Override
+    public Double visitAssignlist(simpleCalcParser.AssignlistContext ctx) {
+        for (simpleCalcParser.AssignContext asl : ctx.asl){
+            visit(asl);
+        }
+        return null;
+    }
+
+    @Override
     public Double visitLessOrEqual(simpleCalcParser.LessOrEqualContext ctx) {
         if (visit(ctx.e1) >= visit(ctx.e2)) {
             return 1.0;
@@ -189,11 +208,11 @@ class Interpreter extends AbstractParseTreeVisitor<Double> implements simpleCalc
 
     @Override
     public Double visitConstant(simpleCalcParser.ConstantContext ctx) {
-        return null;
+        return Double.parseDouble(ctx.c.getText());
     }
 
     @Override
     public Double visitSignedConstant(simpleCalcParser.SignedConstantContext ctx) {
-        return null;
+        return Double.parseDouble(ctx.getText());
     }
 }

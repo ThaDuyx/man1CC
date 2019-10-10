@@ -21,4 +21,4 @@ test:	main.class
 
 tree:	$(GENERATED) simpleCalc.g4
 	javac $(GENERATED)
-	$(grun) simpleCalc start -tree -gui < simpleCalc_input.txt
+	$(grun) simpleCalc simpleCalcLanguage -tree -gui < simpleCalc_input.txt
