@@ -62,8 +62,8 @@ class Interpreter extends AbstractParseTreeVisitor<Double> implements simpleCalc
 
     @Override
     public Double visitWhile(simpleCalcParser.WhileContext ctx) {
-        while (visit(ctx.c) == 1.0) {
-            visit(ctx.c);
+        while (visit(ctx.c1) == 1.0) {
+            visit(ctx.e1);
         }
         return null;
     }
@@ -87,7 +87,7 @@ class Interpreter extends AbstractParseTreeVisitor<Double> implements simpleCalc
 
     @Override
     public Double visitAsFirst(simpleCalcParser.AsFirstContext ctx) {
-        return visit(ctx.as1);
+        return visit(ctx.asl);
     }
 
     @Override
@@ -108,7 +108,7 @@ class Interpreter extends AbstractParseTreeVisitor<Double> implements simpleCalc
     public Double visitLessOrEqual(simpleCalcParser.LessOrEqualContext ctx) {
         if (visit(ctx.e1) >= visit(ctx.e2)) {
             return 1.0;
-        } else return null;
+        } else return 0.0;
     }
 
     @Override
@@ -129,7 +129,7 @@ class Interpreter extends AbstractParseTreeVisitor<Double> implements simpleCalc
     public Double visitBigger(simpleCalcParser.BiggerContext ctx) {
         if (visit(ctx.e1) < visit(ctx.e2)) {
             return 1.0;
-        } else return null;
+        } else return 0.0;
     }
 
     @Override
@@ -164,7 +164,7 @@ class Interpreter extends AbstractParseTreeVisitor<Double> implements simpleCalc
     public Double visitLess(simpleCalcParser.LessContext ctx) {
         if (visit(ctx.e1) > visit(ctx.e2)) {
             return 1.0;
-        } else return null;
+        } else return 0.0;
     }
 
     @Override

@@ -1,29 +1,30 @@
 grammar simpleCalc;
 
-simpleCalcLanguage  : (as+=assignments)* (wl+=while_loop)* (ie+=if_statements)* (e=expr)* EOF
-                    ;
-
-
-while_loop          : WHILE PAR1 (c=conditions) PAR2 e1=assignlist #While
-                    ;
-
-if_statements       : IF PAR1 (c=conditions) PAR2 as=assignments
-                    | IF PAR1 (c=conditions) PAR2 as=assignments (ELSE as=assignments)
+simpleCalcLanguage  : (as+=assignments)* (wl+=while_loop)* (ie+=if_statements)* e=expr EOF
                     ;
 
 assignments         : x=ID '=' e=expr SEMICOLON
                     ;
 
-assign              : as1=assignments    #AsFirst
+assign              : asl=assignments    #AsFirst
                     | e1=expr            #ExpFirst
                     ;
 
 assignlist          : (asl+=assign)+
                     ;
 
-conditions          : e1=expr '<' e2=expr                       # Bigger
+
+while_loop          : WHILE PAR1 (c1=conditions) PAR2 e1=assignlist #While
+                    ;
+
+if_statements       : IF PAR1 (c=conditions) PAR2 as=assignments
+                    | IF PAR1 (c=conditions) PAR2 as=assignments (ELSE as=assignments)
+                    ;
+
+
+conditions          : e1=expr '>' e2=expr                       # Less
+                    | e1=expr '<' e2=expr                       # Bigger
                     | e1=expr '<=' e2=expr                      # BiggerOrEqual
-                    | e1=expr '>' e2=expr                       # Less
                     | e1=expr '>=' e2=expr                      # LessOrEqual
                     | e1=expr '==' e2=expr                      # Equals
                     | e1=expr '!=' e2=expr                      # NotEqual
@@ -34,8 +35,8 @@ conditions          : e1=expr '<' e2=expr                       # Bigger
                     ;
 
 expr	            : c = FLOAT x=ID                    # NMA
-                    | c=FLOAT     	                    # Constant
                     | x=ID		                        # Variable
+                    | c=FLOAT     	                    # Constant
                     | e1=expr opmulti=OPTWO e2=expr     # Multiplication
                     | e1=expr op=OPONE e2=expr          # Addition
                     | '(' e=expr ')'                    # Parenthesis
@@ -57,7 +58,6 @@ NUM         : [0-9] ;
 PAR1        : '('   ;
 PAR2        : ')'   ;
 
-GREATER     : '<'   ;
 SEMICOLON   : ';'   ;
 
 OPONE         : '+' | '-';
