@@ -57,6 +57,12 @@ class Interpreter extends AbstractParseTreeVisitor<Double> implements simpleCalc
     public Double visitSimpleCalcLanguage(simpleCalcParser.SimpleCalcLanguageContext ctx) {
         for (simpleCalcParser.AssignmentsContext a : ctx.as)
             visit(a);
+        for (simpleCalcParser.While_loopContext b : ctx.wl){
+            visit(b);
+        }
+        for(simpleCalcParser.If_statementsContext c : ctx.ie){
+            visit(c);
+        }
         return visit(ctx.e);
     }
 
@@ -69,12 +75,23 @@ class Interpreter extends AbstractParseTreeVisitor<Double> implements simpleCalc
     }
 
     @Override
-    public Double visitIf_statements(simpleCalcParser.If_statementsContext ctx) {
-        if(visit(ctx.c) == 1.0) {
-            visit(ctx.as);
+    public Double visitIfstate(simpleCalcParser.IfstateContext ctx) {
+        if(visit(ctx.c1) == 1.0) {
+            visit(ctx.e1);
         }
         return null;
     }
+
+    @Override
+    public Double visitIfelsestate(simpleCalcParser.IfelsestateContext ctx) {
+        if(visit(ctx.c1) == 1.0) {
+            visit(ctx.e1);
+        } else {
+            visit(ctx.e2);
+        }
+        return null;
+    }
+
 
     @Override
     public Double visitAssignments(simpleCalcParser.AssignmentsContext ctx) {

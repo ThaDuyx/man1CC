@@ -17,10 +17,9 @@ assignlist          : (asl+=assign)+
 while_loop          : WHILE PAR1 (c1=conditions) PAR2 e1=assignlist #While
                     ;
 
-if_statements       : IF PAR1 (c=conditions) PAR2 as=assignments
-                    | IF PAR1 (c=conditions) PAR2 as=assignments (ELSE as=assignments)
+if_statements       : IF PAR1 (c1=conditions) PAR2 e1=assignlist                    #Ifstate
+                    | IF PAR1 (c1=conditions) PAR2 e1=assignlist ELSE e2=assignlist #Ifelsestate
                     ;
-
 
 conditions          : e1=expr '>' e2=expr                       # Less
                     | e1=expr '<' e2=expr                       # Bigger
