@@ -2,6 +2,6 @@ a=4;
 b=0;
 x=5;
 
-if(x>b && b>a)  x=10; b=0; a=5;  else  x=0; b=0;a=0;
+if(x>b && b<a)  x=10; b=0; a=5;  else  x=0; b=0;a=0;
 //while(b<10)  b=b+2; x=x+5;
 x
