@@ -55,46 +55,19 @@ class Interpreter extends AbstractParseTreeVisitor<Double> implements simpleCalc
 
     @Override
     public Double visitSimpleCalcLanguage(simpleCalcParser.SimpleCalcLanguageContext ctx) {
-        for (simpleCalcParser.AssignmentsContext a : ctx.as)
+        for (simpleCalcParser.CommandsContext a : ctx.cm)
             visit(a);
         for (simpleCalcParser.While_loopContext b : ctx.wl){
             visit(b);
         }
-        for(simpleCalcParser.If_statementsContext c : ctx.ie){
+        for(simpleCalcParser.If_stateContext c : ctx.is){
             visit(c);
         }
         return visit(ctx.e);
     }
 
     @Override
-    public Double visitWhile(simpleCalcParser.WhileContext ctx) {
-        while (visit(ctx.c1) == 1.0) {
-            visit(ctx.e1);
-        }
-        return null;
-    }
-
-    @Override
-    public Double visitIfstate(simpleCalcParser.IfstateContext ctx) {
-        if(visit(ctx.c1) == 1.0) {
-            visit(ctx.e1);
-        }
-        return null;
-    }
-
-    @Override
-    public Double visitIfelsestate(simpleCalcParser.IfelsestateContext ctx) {
-        if(visit(ctx.c1) == 1.0) {
-            visit(ctx.e1);
-        } else {
-            visit(ctx.e2);
-        }
-        return null;
-    }
-
-
-    @Override
-    public Double visitAssignments(simpleCalcParser.AssignmentsContext ctx) {
+    public Double visitCommands(simpleCalcParser.CommandsContext ctx) {
         String varname = ctx.x.getText();
         Double v = visit(ctx.e);
         env.put(varname, v);
@@ -103,76 +76,53 @@ class Interpreter extends AbstractParseTreeVisitor<Double> implements simpleCalc
     }
 
     @Override
-    public Double visitAsFirst(simpleCalcParser.AsFirstContext ctx) {
-        return visit(ctx.asl);
+    public Double visitCommand(simpleCalcParser.CommandContext ctx) {
+        return visit(ctx.com);
     }
 
     @Override
-    public Double visitExpFirst(simpleCalcParser.ExpFirstContext ctx) {
-        return visit(ctx.e1);
-    }
-
-
-    @Override
-    public Double visitAssignlist(simpleCalcParser.AssignlistContext ctx) {
-        for (simpleCalcParser.AssignContext asl : ctx.asl){
-            visit(asl);
+    public Double visitFunctions(simpleCalcParser.FunctionsContext ctx) {
+        for (simpleCalcParser.FunctionContext funs : ctx.funs){
+            visit(funs);
         }
         return null;
     }
 
     @Override
-    public Double visitLessOrEqual(simpleCalcParser.LessOrEqualContext ctx) {
-        if (visit(ctx.e1) >= visit(ctx.e2)) {
-            return 1.0;
-        } else return 0.0;
+    public Double visitWhile(simpleCalcParser.WhileContext ctx) {
+        while (visit(ctx.cond) == 1.0) {
+            visit(ctx.fun);
+        }
+        return null;
     }
 
     @Override
-    public Double visitEquals(simpleCalcParser.EqualsContext ctx) {
-        if (visit(ctx.e1).equals(visit(ctx.e2))) {
-            return 1.0;
-        } else return 0.0;
+    public Double visitIf(simpleCalcParser.IfContext ctx) {
+        if(visit(ctx.cond) == 1.0) {
+            visit(ctx.fun);
+        }
+        return null;
     }
 
     @Override
-    public Double visitNot(simpleCalcParser.NotContext ctx) {
-        if (visit(ctx.c1) == 1.0) {
-            return 0.0;
-        } else return 1.0;
+    public Double visitIfelse(simpleCalcParser.IfelseContext ctx) {
+        if(visit(ctx.cond) == 1.0) {
+            visit(ctx.fun1);
+        } else {
+            visit(ctx.fun2);
+        }
+        return null;
     }
 
     @Override
-    public Double visitBigger(simpleCalcParser.BiggerContext ctx) {
+    public Double visitExpress(simpleCalcParser.ExpressContext ctx) {
+        return visit(ctx.exp);
+    }
+
+
+    @Override
+    public Double visitGreat(simpleCalcParser.GreatContext ctx) {
         if (visit(ctx.e1) < visit(ctx.e2)) {
-            return 1.0;
-        } else return 0.0;
-    }
-
-    @Override
-    public Double visitNotEqual(simpleCalcParser.NotEqualContext ctx) {
-        if (!visit(ctx.e1).equals(visit(ctx.e2))) {
-            return 1.0;
-        } else return null;
-    }
-
-    @Override
-    public Double visitOr(simpleCalcParser.OrContext ctx) {
-        if (visit(ctx.e1) == 1.0 || visit(ctx.e2) == 1.0) {
-            return 1.0;
-        } else return 0.0;
-    }
-
-    @Override
-    public Double visitAnd(simpleCalcParser.AndContext ctx) {
-        if (visit(ctx.e1) == 1.0 && visit(ctx.e2) == 1.0) {
-            return 1.0;
-        } else return 0.0;
-    }
-
-    @Override
-    public Double visitBiggerOrEqual(simpleCalcParser.BiggerOrEqualContext ctx) {
-        if (visit(ctx.e1) <= visit(ctx.e2)) {
             return 1.0;
         } else return 0.0;
     }
@@ -185,13 +135,62 @@ class Interpreter extends AbstractParseTreeVisitor<Double> implements simpleCalc
     }
 
     @Override
+    public Double visitGreatEQ(simpleCalcParser.GreatEQContext ctx) {
+        if (visit(ctx.e1) <= visit(ctx.e2)) {
+            return 1.0;
+        } else return 0.0;
+    }
+
+    @Override
+    public Double visitLessEQ(simpleCalcParser.LessEQContext ctx) {
+        if (visit(ctx.e1) >= visit(ctx.e2)) {
+            return 1.0;
+        } else return 0.0;
+    }
+
+    @Override
+    public Double visitNotEQ(simpleCalcParser.NotEQContext ctx) {
+        if (!visit(ctx.e1).equals(visit(ctx.e2))) {
+            return 1.0;
+        } else return null;
+    }
+
+    @Override
+    public Double visitEQ2x(simpleCalcParser.EQ2xContext ctx) {
+        if (visit(ctx.e1).equals(visit(ctx.e2))) {
+            return 1.0;
+        } else return 0.0;
+    }
+
+    @Override
+    public Double visitNot(simpleCalcParser.NotContext ctx) {
+        if (visit(ctx.cond) == 1.0) {
+            return 0.0;
+        } else return 1.0;
+    }
+
+    @Override
+    public Double visitOr(simpleCalcParser.OrContext ctx) {
+        if (visit(ctx.cond1) == 1.0 || visit(ctx.cond2) == 1.0) {
+            return 1.0;
+        } else return 0.0;
+    }
+
+    @Override
+    public Double visitAnd(simpleCalcParser.AndContext ctx) {
+        if (visit(ctx.cond1) == 1.0 && visit(ctx.cond2) == 1.0) {
+            return 1.0;
+        } else return 0.0;
+    }
+
+    @Override
     public Double visitParenthesis(simpleCalcParser.ParenthesisContext ctx) {
         return visit(ctx.e);
     }
 
     @Override
     public Double visitMultiplication(simpleCalcParser.MultiplicationContext ctx) {
-        if (ctx.opmulti.getText().equals("*"))
+        if (ctx.op.getText().equals("*"))
             return visit(ctx.e1) * visit(ctx.e2);
         else
             return visit(ctx.e1) / visit(ctx.e2);
@@ -205,11 +204,11 @@ class Interpreter extends AbstractParseTreeVisitor<Double> implements simpleCalc
             return visit(ctx.e1) - visit(ctx.e2);
 
     }
-
+    /*
     @Override
     public Double visitNMA(simpleCalcParser.NMAContext ctx) {
         return Double.parseDouble(ctx.c.getText());
-    }
+    }*/
 
 
     @Override

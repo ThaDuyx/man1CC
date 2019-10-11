@@ -1,201 +1,67 @@
 grammar simpleCalc;
 
-simpleCalcLanguage  : (as+=assignments)* (wl+=while_loop)* (ie+=if_statements)* e=expr EOF
+simpleCalcLanguage  : (cm+=commands)* (wl+=while_loop)* (is+=if_state)* e=expr EOF
                     ;
 
-assignments         : x=ID '=' e=expr SEMICOLON
+commands            : x=ID EQ e=expr SC
                     ;
 
-assign              : asl=assignments    #AsFirst
-                    | e1=expr            #ExpFirst
+function            : com=commands                                                      # Command
+                    | exp=expr                                                          # Express
                     ;
 
-assignlist          : (asl+=assign)+
+functions           : (funs+=function)+
                     ;
 
-
-while_loop          : WHILE PAR1 (c1=conditions) PAR2 e1=assignlist #While
+while_loop          : WHILE PAR1 (cond=conditions) PAR2 fun=functions                   # While
                     ;
 
-if_statements       : IF PAR1 (c1=conditions) PAR2 e1=assignlist                    #Ifstate
-                    | IF PAR1 (c1=conditions) PAR2 e1=assignlist ELSE e2=assignlist #Ifelsestate
+if_state            : IF PAR1 (cond=conditions) PAR2 fun=functions                      # If
+                    | IF PAR1 (cond=conditions) PAR2 fun1=functions ELSE fun2=functions # Ifelse
                     ;
 
-conditions          : e1=expr '>' e2=expr                       # Less
-                    | e1=expr '<' e2=expr                       # Bigger
-                    | e1=expr '<=' e2=expr                      # BiggerOrEqual
-                    | e1=expr '>=' e2=expr                      # LessOrEqual
-                    | e1=expr '==' e2=expr                      # Equals
-                    | e1=expr '!=' e2=expr                      # NotEqual
-                    | e1=expr '<=' e2=expr                      # BiggerOrEqual
-                    | '!' '(' c1=conditions ')'                 # Not
-                    | e1=conditions '&&' e2=conditions          # And
-                    | e1=conditions '||' e2=conditions          # Or
+conditions          : e1=expr LESS e2=expr                                              # Less
+                    | e1=expr GREAT e2=expr                                             # Great
+                    | e1=expr GREATEQ e2=expr                                           # GreatEQ
+                    | e1=expr LESSEQ e2=expr                                            # LessEQ
+                    | e1=expr EQEQ e2=expr                                              # EQ2x
+                    | e1=expr NOTEQ e2=expr                                             # NotEQ
+                    | cond1=conditions AND cond2=conditions                             # And
+                    | cond1=conditions OR cond2=conditions                              # Or
+                    | EXMARK PAR1 cond=conditions PAR2                                  # Not
                     ;
 
-expr	            : c = FLOAT x=ID                    # NMA
-                    | x=ID		                        # Variable
-                    | c=FLOAT     	                    # Constant
-                    | e1=expr opmulti=OPTWO e2=expr     # Multiplication
-                    | e1=expr op=OPONE e2=expr          # Addition
-                    | '(' e=expr ')'                    # Parenthesis
-                    | op=OPONE f=FLOAT                  # SignedConstant
+expr	            : x=ID		                                                        # Variable
+                    | c=FLOAT     	                                                    # Constant
+                    | e1=expr op=OPTWO e2=expr                                          # Multiplication
+                    | e1=expr op=OPONE e2=expr                                          # Addition
+                    | PAR1 e=expr PAR2                                                  # Parenthesis
+                    | op=OPONE f=FLOAT                                                  # SignedConstant
                     ;
 
-WHILE       : 'while'   ;
-IF          : 'if'      ;
-ELSEIF      : 'else if' ;
-ELSE        : 'else'    ;
-EQUALS      : '='       ;
-
-ID          : ALPHA (ALPHA|NUM)* ;
-FLOAT       : NUM+ ('.' NUM+)? ;
-
-ALPHA       : [a-zA-Z_ÆØÅæøå] ;
-NUM         : [0-9] ;
-
-PAR1        : '('   ;
-PAR2        : ')'   ;
-
-SEMICOLON   : ';'   ;
-
-OPONE         : '+' | '-';
-OPTWO         : '*' | '/';
-
-WHITESPACE  : [ \n\t\r]+ -> skip;
-COMMENT     : '//'~[\n]*  -> skip;
-COMMENT2    : '/*' (~[*] | '*'~[/]  )*   '*/'  -> skip;
-
-/*start   : (as+=assign)* e=expr EOF ;
-
-assign  : x=ID '=' e=expr        ;
-
-
-
-
-ALPHA : [a-zA-Z_ÆØÅæøå] ;
-NUM   : [0-9] ;
-*/
-
-/*parse
- : block EOF
- ;
-
-block
- : stat*
- ;
-
-stat
- : assignment
- | if_stat
- | while_stat
- | log
- | OTHER {System.err.println("unknown char: " + $OTHER.text);}
- ;
-
-assignment
- : ID ASSIGN expr SCOL
- ;
-
-if_stat
- : IF condition_block (ELSE IF condition_block)* (ELSE stat_block)?
- ;
-
-condition_block
- : expr stat_block
- ;
-
-stat_block
- : OBRACE block CBRACE
- | stat
- ;
-
-while_stat
- : WHILE expr stat_block
- ;
-
-log
- : LOG expr SCOL
- ;
-
-expr
- : expr POW<assoc=right> expr           #powExpr
- | MINUS expr                           #unaryMinusExpr
- | NOT expr                             #notExpr
- | expr op=(MULT | DIV | MOD) expr      #multiplicationExpr
- | expr op=(PLUS | MINUS) expr          #additiveExpr
- | expr op=(LTEQ | GTEQ | LT | GT) expr #relationalExpr
- | expr op=(EQ | NEQ) expr              #equalityExpr
- | expr AND expr                        #andExpr
- | expr OR expr                         #orExpr
- | atom                                 #atomExpr
- ;
-
-atom
- : OPAR expr CPAR #parExpr
- | (INT | FLOAT)  #numberAtom
- | (TRUE | FALSE) #booleanAtom
- | ID             #idAtom
- | STRING         #stringAtom
- | NIL            #nilAtom
- ;
-
-OR : '||';
-AND : '&&';
-EQ : '==';
-NEQ : '!=';
-GT : '>';
-LT : '<';
-GTEQ : '>=';
-LTEQ : '<=';
-PLUS : '+';
-MINUS : '-';
-MULT : '*';
-DIV : '/';
-MOD : '%';
-POW : '^';
-NOT : '!';
-
-SCOL : ';';
-ASSIGN : '=';
-OPAR : '(';
-CPAR : ')';
-OBRACE : '{';
-CBRACE : '}';
-
-TRUE : 'true';
-FALSE : 'false';
-NIL : 'nil';
-IF : 'if';
-ELSE : 'else';
-WHILE : 'while';
-LOG : 'log';
-
-ID
- : [a-zA-Z_] [a-zA-Z_0-9]*
- ;
-
-INT
- : [0-9]+
- ;
-
-FLOAT
- : [0-9]+ '.' [0-9]*
- | '.' [0-9]+
- ;
-
-STRING
- : '"' (~["\r\n] | '""')* '"'
- ;
-
-COMMENT
- : '#' ~[\r\n]* -> skip
- ;
-
-SPACE
- : [ \t\r\n] -> skip
- ;
-
-OTHER
- : .
- ;*/
+ID                  : ALPHA (ALPHA|NUM)*                        ;
+FLOAT               : NUM+ ('.' NUM+)?                          ;
+ALPHA               : [a-zA-Z_ÆØÅæøå]                           ;
+NUM                 : [0-9]                                     ;
+WHITESPACE          : [ \n\t\r]+ -> skip                        ;
+COMMENT             : '//'~[\n]*  -> skip                       ;
+COMMENT2            : '/*' (~[*] | '*'~[/]  )*   '*/'  -> skip  ;
+WHILE               : 'while'                                   ;
+IF                  : 'if'                                      ;
+ELSEIF              : 'else if'                                 ;
+ELSE                : 'else'                                    ;
+EQ                  : '='                                       ;
+PAR1                : '('                                       ;
+PAR2                : ')'                                       ;
+LESS                : '>'                                       ;
+LESSEQ              : '>='                                      ;
+GREAT               : '<'                                       ;
+GREATEQ             : '<='                                      ;
+EQEQ                : '=='                                      ;
+NOTEQ               : '!='                                      ;
+AND                 : '&&'                                      ;
+OR                  : '||'                                      ;
+SC                  : ';'                                       ;
+EXMARK              : '!'                                       ;
+OPONE               : '+' | '-'                                 ;
+OPTWO               : '*' | '/'                                 ;
